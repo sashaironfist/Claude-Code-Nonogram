@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nonogram</title>
+<style>
+/* ══════════════════════════════════════
+   BASE THEME TOKENS
+══════════════════════════════════════ */
+:root {
+  --bg:#1a1a2e;        --bg2:#13132a;
+  --surface:#16213e;   --surface2:#0f3460;
+  --accent:#e94560;    --accent2:#53d8fb;
+  --text:#eaeaea;      --text-dim:#6a7090;
+  --cell:#22224a;      --cell-hover:#2e2e5a;
+  --cell-x:#53d8fb;
+  --grid:#2e2e5a;      --grid-bold:#5555aa;
+  --done-fg:#3ddc84;   --done-bg:#0d2218;
+  --clue-hi:#1e2a5a;
+  --win-border:#3ddc84;--win-glow:rgba(61,220,132,.3);
+  --shadow:rgba(0,0,0,.5);
+  --radius:8px;
+}
+/* ── Dark (default) ── */
+[data-theme="dark"] {
+  --bg:#1a1a2e; --bg2:#13132a; --surface:#16213e; --surface2:#0f3460;
+  --accent:#e94560; --accent2:#53d8fb;
+  --text:#eaeaea; --text-dim:#6a7090;
+  --cell:#22224a; --cell-hover:#2e2e5a; --cell-x:#53d8fb;
+  --grid:#2e2e5a; --grid-bold:#5555aa;
+  --done-fg:#3ddc84; --done-bg:#0d2218; --clue-hi:#1e2a5a;
+}
+/* ── Blue-Black ── */
+[data-theme="blueblack"] {
+  --bg:#000814; --bg2:#000510; --surface:#001d3d; --surface2:#003566;
+  --accent:#0096c7; --accent2:#90e0ef;
+  --text:#caf0f8; --text-dim:#3a7a99;
+  --cell:#001830; --cell-hover:#002850; --cell-x:#ffd166;
+  --grid:#003060; --grid-bold:#0077b6;
+  --done-fg:#06d6a0; --done-bg:#001a10; --clue-hi:#002050;
+  --win-border:#0096c7; --win-glow:rgba(0,150,199,.35);
+}
+/* ── Red-Black ── */
+[data-theme="redblack"] {
+  --bg:#0d0000; --bg2:#080000; --surface:#200000; --surface2:#350000;
+  --accent:#ff3333; --accent2:#ff9900;
+  --text:#ffe0e0; --text-dim:#884444;
+  --cell:#1c0000; --cell-hover:#2e0000; --cell-x:#ff9900;
+  --grid:#440000; --grid-bold:#880000;
+  --done-fg:#ff9900; --done-bg:#1a0d00; --clue-hi:#2a0000;
+  --win-border:#ff3333; --win-glow:rgba(255,51,51,.35);
+}
+/* ── Green-Black ── */
+[data-theme="greenblack"] {
+  --bg:#000d00; --bg2:#000800; --surface:#001a00; --surface2:#002a00;
+  --accent:#00e676; --accent2:#69ff47;
+  --text:#ccffcc; --text-dim:#336633;
+  --cell:#001500; --cell-hover:#002200; --cell-x:#ffeb3b;
+  --grid:#003300; --grid-bold:#006600;
+  --done-fg:#69ff47; --done-bg:#001a00; --clue-hi:#002800;
+  --win-border:#00e676; --win-glow:rgba(0,230,118,.35);
+}
+/* ── Retro ── */
+[data-theme="retro"] {
+  --bg:#0c0c0c; --bg2:#080808; --surface:#181400; --surface2:#262000;
+  --accent:#ffd700; --accent2:#ff8c00;
+  --text:#ffe880; --text-dim:#806030;
+  --cell:#181400; --cell-hover:#282000; --cell-x:#ff8c00;
+  --grid:#383000; --grid-bold:#706000;
+  --done-fg:#aaff00; --done-bg:#0a1200; --clue-hi:#242000;
+  --win-border:#ffd700; --win-glow:rgba(255,215,0,.35);
+}
+/* ── Modern ── */
+[data-theme="modern"] {
+  --bg:#f1f5f9; --bg2:#e8eef5; --surface:#ffffff; --surface2:#e2e8f0;
+  --accent:#6366f1; --accent2:#0ea5e9;
+  --text:#1e293b; --text-dim:#94a3b8;
+  --cell:#dde3ec; --cell-hover:#c8d2e0; --cell-x:#0ea5e9;
+  --grid:#b0bec5; --grid-bold:#78909c;
+  --done-fg:#059669; --done-bg:#ecfdf5; --clue-hi:#ede9fe;
+  --win-border:#6366f1; --win-glow:rgba(99,102,241,.2);
+}
+/* ── Spring ── */
+[data-theme="spring"] {
+  --bg:#fdf4ff; --bg2:#f9ebff; --surface:#fce7f3; --surface2:#fbcfe8;
+  --accent:#e879f9; --accent2:#a78bfa;
+  --text:#4a1d6e; --text-dim:#c084fc;
+  --cell:#f3e8ff; --cell-hover:#e9d5ff; --cell-x:#34d399;
+  --grid:#d8b4fe; --grid-bold:#a855f7;
+  --done-fg:#10b981; --done-bg:#ecfdf5; --clue-hi:#fae8ff;
+  --win-border:#e879f9; --win-glow:rgba(232,121,249,.25);
+}
+/* ── Summer ── */
+[data-theme="summer"] {
+  --bg:#fffbf0; --bg2:#fff7e6; --surface:#fff3cc; --surface2:#ffe8a0;
+  --accent:#f97316; --accent2:#ef4444;
+  --text:#7c2d12; --text-dim:#c2700a;
+  --cell:#fde68a; --cell-hover:#fcd34d; --cell-x:#0891b2;
+  --grid:#fbbf24; --grid-bold:#d97706;
+  --done-fg:#16a34a; --done-bg:#f0fdf4; --clue-hi:#fef3c7;
+  --win-border:#f97316; --win-glow:rgba(249,115,22,.25);
+}
+/* ── Autumn ── */
+[data-theme="autumn"] {
+  --bg:#1c0800; --bg2:#150600; --surface:#2e1000; --surface2:#401800;
+  --accent:#ff7043; --accent2:#ffca28;
+  --text:#ffe0cc; --text-dim:#994422;
+  --cell:#2a1000; --cell-hover:#3d1800; --cell-x:#ffca28;
+  --grid:#5a2800; --grid-bold:#8a4000;
+  --done-fg:#8bc34a; --done-bg:#0a1500; --clue-hi:#3d1500;
+  --win-border:#ffca28; --win-glow:rgba(255,202,40,.3);
+}
+/* ── Winter ── */
+[data-theme="winter"] {
+  --bg:#0a1628; --bg2:#060e1c; --surface:#0d2040; --surface2:#10304a;
+  --accent:#81d4fa; --accent2:#e1f5fe;
+  --text:#e1f5fe; --text-dim:#4a7a99;
+  --cell:#0d2040; --cell-hover:#153060; --cell-x:#f48fb1;
+  --grid:#1a4070; --grid-bold:#2060b0;
+  --done-fg:#4dd0e1; --done-bg:#002233; --clue-hi:#152a55;
+  --win-border:#81d4fa; --win-glow:rgba(129,212,250,.3);
+}
+/* ── Ocean ── */
+[data-theme="ocean"] {
+  --bg:#001824; --bg2:#000e18; --surface:#002838; --surface2:#003d55;
+  --accent:#00bcd4; --accent2:#80deea;
+  --text:#b2ebf2; --text-dim:#2a7a8a;
+  --cell:#002030; --cell-hover:#003348; --cell-x:#ff8a65;
+  --grid:#004060; --grid-bold:#006080;
+  --done-fg:#00e676; --done-bg:#001a12; --clue-hi:#003050;
+  --win-border:#00bcd4; --win-glow:rgba(0,188,212,.3);
+}
+/* ── Neon ── */
+[data-theme="neon"] {
+  --bg:#060608; --bg2:#030305; --surface:#0d0d12; --surface2:#141420;
+  --accent:#ff007a; --accent2:#00ffe5;
+  --text:#f0f0ff; --text-dim:#444466;
+  --cell:#0e0e18; --cell-hover:#181828; --cell-x:#00ffe5;
+  --grid:#1a1a2a; --grid-bold:#2a2a44;
+  --done-fg:#00ff88; --done-bg:#001a0d; --clue-hi:#14142a;
+  --win-border:#ff007a; --win-glow:rgba(255,0,122,.4);
+}
+/* ── Candy ── */
+[data-theme="candy"] {
+  --bg:#2d0050; --bg2:#200040; --surface:#400070; --surface2:#550090;
+  --accent:#ff80ff; --accent2:#ffee58;
+  --text:#ffe6ff; --text-dim:#bb44cc;
+  --cell:#380060; --cell-hover:#4a0080; --cell-x:#ffee58;
+  --grid:#6600aa; --grid-bold:#aa00ee;
+  --done-fg:#69ff47; --done-bg:#001400; --clue-hi:#500090;
+  --win-border:#ff80ff; --win-glow:rgba(255,128,255,.3);
+}
+/* ── Forest ── */
+[data-theme="forest"] {
+  --bg:#081208; --bg2:#040c04; --surface:#102010; --surface2:#183020;
+  --accent:#56ab2f; --accent2:#a8e063;
+  --text:#c8f0c8; --text-dim:#406040;
+  --cell:#0e1e0e; --cell-hover:#183018; --cell-x:#ffd54f;
+  --grid:#204020; --grid-bold:#366030;
+  --done-fg:#b0ff60; --done-bg:#091500; --clue-hi:#183018;
+  --win-border:#56ab2f; --win-glow:rgba(86,171,47,.3);
+}
+/* ── Grayscale ── */
+[data-theme="gray"] {
+  --bg:#111; --bg2:#0a0a0a; --surface:#1c1c1c; --surface2:#282828;
+  --accent:#d0d0d0; --accent2:#888;
+  --text:#f0f0f0; --text-dim:#555;
+  --cell:#1e1e1e; --cell-hover:#2e2e2e; --cell-x:#aaa;
+  --grid:#303030; --grid-bold:#555;
+  --done-fg:#fff; --done-bg:#1a1a1a; --clue-hi:#252525;
+  --win-border:#aaa; --win-glow:rgba(200,200,200,.2);
+}
+/* ── Sunset ── */
+[data-theme="sunset"] {
+  --bg:#1a0010; --bg2:#120008; --surface:#2d0020; --surface2:#440033;
+  --accent:#ff6b9d; --accent2:#ffa842;
+  --text:#ffe0f0; --text-dim:#884466;
+  --cell:#260018; --cell-hover:#380028; --cell-x:#ffa842;
+  --grid:#550038; --grid-bold:#880055;
+  --done-fg:#ffcc00; --done-bg:#1a1000; --clue-hi:#3a0028;
+  --win-border:#ff6b9d; --win-glow:rgba(255,107,157,.3);
+}
+
+/* ══════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 10px 24px;
+  user-select: none;
+  transition: background .3s, color .3s;
+}
+
+/* ── Header ── */
+.header { text-align: center; margin-bottom: 14px; }
+h1 {
+  font-size: 2rem; font-weight: 900; letter-spacing: 6px;
+  color: var(--accent); text-transform: uppercase;
+  text-shadow: 0 0 30px color-mix(in srgb, var(--accent) 55%, transparent),
+               0 2px 4px rgba(0,0,0,.5);
+  transition: color .3s, text-shadow .3s;
+}
+.subtitle { font-size: .68rem; letter-spacing: 3px; color: var(--text-dim); margin-top: 3px; }
+
+/* ── Panel card ── */
+.panel {
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--grid-bold) 50%, transparent);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+  width: 100%; max-width: 860px;
+  margin-bottom: 10px;
+  backdrop-filter: blur(4px);
+}
+.row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.sep { width: 1px; height: 22px; background: var(--grid-bold); opacity: .4; flex-shrink: 0; }
+.lbl {
+  font-size: .68rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-dim); min-width: 52px; text-align: right; flex-shrink: 0;
+}
+
+/* ── Buttons & select ── */
+select, button {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--grid-bold) 70%, transparent);
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, box-shadow .15s, color .15s;
+  outline: none;
+  white-space: nowrap;
+}
+select:hover, button:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+select option { background: var(--surface); color: var(--text); }
+button.danger:hover { background: #c0392b; border-color: #c0392b; box-shadow: 0 0 10px rgba(192,57,43,.4); }
+
+/* ── Timer ── */
+.timer {
+  font-size: 1.05rem; font-weight: 700; letter-spacing: 2px;
+  color: var(--accent2); min-width: 54px; text-align: center;
+  font-variant-numeric: tabular-nums;
+  transition: color .3s;
+}
+
+/* ── Theme swatches ── */
+.swatches { display: flex; gap: 5px; flex-wrap: wrap; }
+.swatch {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+  flex-shrink: 0;
+}
+.swatch:hover { transform: scale(1.25); }
+.swatch.active {
+  border-color: var(--text);
+  box-shadow: 0 0 6px var(--accent);
+  transform: scale(1.15);
+}
+
+/* ── Brush palette ── */
+.brushes { display: flex; gap: 4px; align-items: center; }
+.brush-btn {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+  flex-shrink: 0;
+  padding: 0;
+  background: var(--b-color, #888);
+}
+.brush-btn:hover { transform: scale(1.2); background: var(--b-color, #888) !important; }
+.brush-btn.active {
+  border-color: #fff !important;
+  box-shadow: 0 0 8px var(--b-color, #888);
+  transform: scale(1.15);
+}
+/* erase brush */
+.brush-erase {
+  font-size: .65rem; font-weight: 700; letter-spacing: .5px;
+  padding: 0 6px; height: 26px; width: auto;
+}
+
+/* ── Zoom ── */
+.zoom-val {
+  min-width: 38px; text-align: center; font-size: .8rem;
+  color: var(--accent2); font-weight: 600;
+}
+
+/* ── Status bar ── */
+.statusbar {
+  font-size: .78rem; color: var(--text-dim);
+  min-height: 18px; text-align: center; letter-spacing: .5px;
+}
+.ok  { color: var(--done-fg); }
+.err { color: var(--accent); }
+
+/* ══════════════════════════════════════
+   GRID
+══════════════════════════════════════ */
+.game-wrapper { overflow: auto; max-width: 100%; padding: 4px; }
+.game-outer   { display: inline-flex; flex-direction: column; }
+
+table { border-collapse: collapse; }
+td    { padding: 0; }
+
+.corner { background: var(--bg); }
+
+/* Clues */
+.col-clue, .row-clue {
+  background: var(--surface);
+  font-weight: 700; line-height: 1.15;
+  transition: background .15s, color .15s;
+}
+.col-clue {
+  text-align: center; vertical-align: bottom; padding: 4px 2px;
+}
+.col-clue .nums { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.row-clue {
+  text-align: right; vertical-align: middle;
+  padding: 2px 8px 2px 14px; white-space: nowrap;
+  border-right: 2px solid var(--grid-bold);
+}
+.row-clue .nums { display: flex; flex-direction: row; align-items: center; gap: 4px; justify-content: flex-end; }
+.col-clue.done, .row-clue.done { color: var(--done-fg); background: var(--done-bg); }
+.col-clue.hi,   .row-clue.hi   { background: var(--clue-hi); }
+
+/* Cells */
+.cell {
+  background: var(--cell);
+  border: 1px solid var(--grid);
+  cursor: crosshair;
+  position: relative;
+  transition: background .04s;
+}
+.cell:hover { filter: brightness(1.4); }
+.cell.hrow, .cell.hcol { background: var(--cell-hover); }
+
+/* filled colours */
+.cell.c1  { background: #e94560; }
+.cell.c2  { background: #3b8bff; }
+.cell.c3  { background: #2dcc70; }
+.cell.c4  { background: #f7ca18; }
+.cell.c5  { background: #e056d9; }
+.cell.c6  { background: #ff7043; }
+.cell.c7  { background: #26c6da; }
+
+/* hover on filled */
+.cell.c1.hrow,.cell.c1.hcol { background:#ff6b84; }
+.cell.c2.hrow,.cell.c2.hcol { background:#5fa8ff; }
+.cell.c3.hrow,.cell.c3.hcol { background:#55e090; }
+.cell.c4.hrow,.cell.c4.hcol { background:#ffd740; }
+.cell.c5.hrow,.cell.c5.hcol { background:#f080ee; }
+.cell.c6.hrow,.cell.c6.hcol { background:#ff9270; }
+.cell.c7.hrow,.cell.c7.hcol { background:#4dd8e8; }
+
+/* neon glow variant */
+[data-theme="neon"] .cell.c1  { box-shadow: 0 0 6px #e94560; }
+[data-theme="neon"] .cell.c2  { box-shadow: 0 0 6px #3b8bff; }
+[data-theme="neon"] .cell.c3  { box-shadow: 0 0 6px #2dcc70; }
+[data-theme="neon"] .cell.c4  { box-shadow: 0 0 6px #f7ca18; }
+
+/* X mark */
+.cell.marked::after {
+  content: '✕';
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cell-x); font-weight: 900; pointer-events: none;
+}
+
+/* bold dividers */
+.bold-r { border-right:  2px solid var(--grid-bold) !important; }
+.bold-b { border-bottom: 2px solid var(--grid-bold) !important; }
+
+/* ══════════════════════════════════════
+   WIN OVERLAY
+══════════════════════════════════════ */
+.win-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.82);
+  align-items: center; justify-content: center;
+  z-index: 200;
+}
+.win-overlay.show { display: flex; }
+.win-box {
+  background: var(--surface);
+  border: 2px solid var(--win-border);
+  border-radius: 16px;
+  padding: 36px 52px;
+  text-align: center;
+  box-shadow: 0 0 60px var(--win-glow), 0 0 0 8px color-mix(in srgb, var(--win-border) 10%, transparent);
+  animation: pop .28s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes pop { from { transform:scale(.65); opacity:0; } to { transform:scale(1); opacity:1; } }
+.win-box h2 { font-size: 2.2rem; color: var(--done-fg); margin-bottom: 8px; }
+.win-box p  { color: var(--text-dim); margin-bottom: 12px; }
+.win-time   { font-size: 1.5rem; color: var(--accent2); font-weight: 700; }
+.win-btns   { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+
+.win-stats {
+  display: flex; gap: 20px; justify-content: center;
+  margin: 14px 0 4px;
+}
+.win-stat {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.win-stat-val {
+  font-size: 1.8rem; font-weight: 900; color: var(--accent);
+  line-height: 1;
+}
+.win-stat-val.streak-fire { color: var(--done-fg); }
+.win-stat-lbl {
+  font-size: .62rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* stats badge in header */
+.stats-badge {
+  display: flex; gap: 14px; align-items: center; justify-content: center;
+  font-size: .72rem; color: var(--text-dim); letter-spacing: .5px;
+}
+.stats-badge span { display: flex; gap: 4px; align-items: center; }
+.stats-badge strong { color: var(--accent2); font-size: .9rem; }
+
+/* ── Info bar ── */
+.info-bar {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  font-size: .72rem; color: var(--text-dim); margin-top: 10px;
+}
+.info-bar kbd {
+  background: var(--surface2);
+  border: 1px solid var(--grid-bold);
+  border-radius: 4px; padding: 1px 5px;
+  font-size: .7rem; color: var(--text);
+}
+.dot { color: var(--grid-bold); }
+
+/* ── Retro font ── */
+[data-theme="retro"] h1,
+[data-theme="retro"] .timer,
+[data-theme="retro"] select,
+[data-theme="retro"] button { font-family: 'Courier New', monospace; }
+/* ── Neon title glow ── */
+[data-theme="neon"] h1 {
+  text-shadow: 0 0 8px var(--accent), 0 0 30px var(--accent), 0 0 70px var(--accent);
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- ── Header ── -->
+<div class="header">
+  <h1 id="gameTitle">NONOGRAM</h1>
+  <div class="subtitle">PICROSS · PAINT &amp; SOLVE</div>
+</div>
+
+<!-- ── Controls panel ── -->
+<div class="panel">
+
+  <!-- Row 1: puzzle -->
+  <div class="row">
+    <span class="lbl">Puzzle</span>
+    <select id="puzzleSelect"></select>
+    <button id="btnNew">New</button>
+    <div class="sep"></div>
+    <button id="btnCheck">Check</button>
+    <button id="btnHint">Hint</button>
+    <button id="btnUndo">↩ Undo</button>
+    <button id="btnRedo">↪ Redo</button>
+    <button id="btnReset" class="danger">Reset</button>
+    <div class="sep"></div>
+    <span class="timer" id="timer">0:00</span>
+  </div>
+
+  <!-- Row 2: brush colours -->
+  <div class="row">
+    <span class="lbl">Brush</span>
+    <div class="brushes" id="brushPalette"></div>
+  </div>
+
+  <!-- Row 3: themes -->
+  <div class="row">
+    <span class="lbl">Theme</span>
+    <div class="swatches" id="swatches"></div>
+  </div>
+
+  <!-- Row 4: stats -->
+  <div class="row">
+    <span class="lbl">Stats</span>
+    <div class="stats-badge" id="statsBadge">
+      <span>🏆 Wins <strong id="statWins">0</strong></span>
+      <span>🔥 Streak <strong id="statStreak">0</strong></span>
+      <span>⭐ Best <strong id="statBest">0</strong></span>
+    </div>
+  </div>
+
+  <!-- Row 5: zoom -->
+  <div class="row">
+    <span class="lbl">Size</span>
+    <button id="btnZoomOut">−</button>
+    <span class="zoom-val" id="zoomVal">32px</span>
+    <button id="btnZoomIn">+</button>
+  </div>
+
+</div>
+
+<div class="statusbar" id="statusbar"></div>
+
+<div class="game-wrapper">
+  <div class="game-outer" id="gameOuter"></div>
+</div>
+
+<div class="info-bar">
+  <span><kbd>LMB</kbd> paint</span><span class="dot">·</span>
+  <span><kbd>RMB</kbd> mark ✕</span><span class="dot">·</span>
+  <span><kbd>Drag</kbd> streak</span><span class="dot">·</span>
+  <span><kbd>1–7</kbd> pick colour</span><span class="dot">·</span>
+  <span><kbd>0</kbd> erase</span><span class="dot">·</span>
+  <span><kbd>Ctrl+Z/Y</kbd> undo/redo</span><span class="dot">·</span>
+  <span><kbd>H</kbd> hint</span>
+</div>
+
+<div class="win-overlay" id="winOverlay">
+  <div class="win-box">
+    <h2>✓ Solved!</h2>
+    <p>Congratulations — puzzle complete!</p>
+    <div class="win-time" id="winTime"></div>
+    <div class="win-stats">
+      <div class="win-stat">
+        <div class="win-stat-val" id="wsTotalWins">0</div>
+        <div class="win-stat-lbl">Total Wins</div>
+      </div>
+      <div class="win-stat">
+        <div class="win-stat-val streak-fire" id="wsStreak">0</div>
+        <div class="win-stat-lbl">🔥 Streak</div>
+      </div>
+      <div class="win-stat">
+        <div class="win-stat-val" id="wsBest">0</div>
+        <div class="win-stat-lbl">⭐ Best</div>
+      </div>
+    </div>
+    <div id="wsNewRecord" style="display:none;font-size:.8rem;color:var(--done-fg);letter-spacing:2px;margin-bottom:4px;">NEW RECORD!</div>
+    <div class="win-btns">
+      <button onclick="document.getElementById('winOverlay').classList.remove('show')">Close</button>
+      <button id="btnNextWin">Next Puzzle →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════
+// THEMES
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// STATS (wins / streak / best streak)
+// ═══════════════════════════════════════════
+let totalWins   = +localStorage.getItem('ng_wins')   || 0;
+let curStreak   = +localStorage.getItem('ng_streak') || 0;
+let bestStreak  = +localStorage.getItem('ng_best')   || 0;
+
+function saveStats() {
+  localStorage.setItem('ng_wins',   totalWins);
+  localStorage.setItem('ng_streak', curStreak);
+  localStorage.setItem('ng_best',   bestStreak);
+}
+
+function refreshStatsBadge() {
+  document.getElementById('statWins').textContent   = totalWins;
+  document.getElementById('statStreak').textContent = curStreak;
+  document.getElementById('statBest').textContent   = bestStreak;
+}
+
+function recordWin() {
+  totalWins++;
+  curStreak++;
+  const isRecord = curStreak > bestStreak;
+  if (isRecord) bestStreak = curStreak;
+  saveStats();
+  refreshStatsBadge();
+  // update win overlay numbers
+  document.getElementById('wsTotalWins').textContent = totalWins;
+  document.getElementById('wsStreak').textContent    = curStreak;
+  document.getElementById('wsBest').textContent      = bestStreak;
+  document.getElementById('wsNewRecord').style.display = isRecord && curStreak > 1 ? '' : 'none';
+}
+
+function breakStreak() {
+  curStreak = 0;
+  saveStats();
+  refreshStatsBadge();
+}
+
+const THEMES = [
+  { id:'dark',       label:'Dark',        color:'#e94560' },
+  { id:'blueblack',  label:'Blue/Black',  color:'#0096c7' },
+  { id:'redblack',   label:'Red/Black',   color:'#ff3333' },
+  { id:'greenblack', label:'Green/Black', color:'#00e676' },
+  { id:'retro',      label:'Retro',       color:'#ffd700' },
+  { id:'modern',     label:'Modern',      color:'#6366f1' },
+  { id:'spring',     label:'Spring',      color:'#e879f9' },
+  { id:'summer',     label:'Summer',      color:'#f97316' },
+  { id:'autumn',     label:'Autumn',      color:'#ff7043' },
+  { id:'winter',     label:'Winter',      color:'#81d4fa' },
+  { id:'ocean',      label:'Ocean',       color:'#00bcd4' },
+  { id:'neon',       label:'Neon',        color:'#ff007a' },
+  { id:'candy',      label:'Candy',       color:'#ff80ff' },
+  { id:'forest',     label:'Forest',      color:'#56ab2f' },
+  { id:'gray',       label:'Grayscale',   color:'#aaaaaa' },
+  { id:'sunset',     label:'Sunset',      color:'#ff6b9d' },
+];
+
+const TITLE_MAP = {
+  dark:'NONOGRAM', blueblack:'NONOGRAM', redblack:'NONOGRAM',
+  greenblack:'NONOGRAM', retro:'NONOGRAM', modern:'NONOGRAM',
+  spring:'✿ NONOGRAM', summer:'☀ NONOGRAM', autumn:'NONOGRAM',
+  winter:'❄ NONOGRAM', ocean:'NONOGRAM', neon:'NONOGRAM',
+  candy:'✦ NONOGRAM', forest:'NONOGRAM', gray:'NONOGRAM', sunset:'NONOGRAM',
+};
+
+function buildSwatches() {
+  const c = document.getElementById('swatches');
+  THEMES.forEach(t => {
+    const s = document.createElement('button');
+    s.className = 'swatch';
+    s.title = t.label;
+    s.style.background = t.color;
+    s.dataset.id = t.id;
+    s.onclick = () => applyTheme(t.id);
+    c.appendChild(s);
+  });
+}
+
+function applyTheme(id) {
+  document.body.dataset.theme = id;
+  document.getElementById('gameTitle').textContent = TITLE_MAP[id] || 'NONOGRAM';
+  document.querySelectorAll('.swatch').forEach(s => {
+    const on = s.dataset.id === id;
+    s.classList.toggle('active', on);
+    s.style.borderColor = on ? '#fff' : 'transparent';
+  });
+  localStorage.setItem('ng_theme', id);
+}
+
+// ═══════════════════════════════════════════
+// BRUSH PALETTE
+// ═══════════════════════════════════════════
+const BRUSHES = [
+  { id:1, color:'#e94560', label:'Red'    },
+  { id:2, color:'#3b8bff', label:'Blue'   },
+  { id:3, color:'#2dcc70', label:'Green'  },
+  { id:4, color:'#f7ca18', label:'Yellow' },
+  { id:5, color:'#e056d9', label:'Purple' },
+  { id:6, color:'#ff7043', label:'Orange' },
+  { id:7, color:'#26c6da', label:'Cyan'   },
+];
+
+let activeBrush = 1; // colour id 1-7, 0 = erase
+
+function buildBrushPalette() {
+  const p = document.getElementById('brushPalette');
+
+  // erase
+  const eb = document.createElement('button');
+  eb.className = 'brush-btn brush-erase';
+  eb.title = 'Erase (0)';
+  eb.textContent = 'ERASE';
+  eb.dataset.bid = 0;
+  eb.style.setProperty('--b-color', 'var(--cell)');
+  eb.style.background = 'var(--surface2)';
+  eb.onclick = () => selectBrush(0);
+  p.appendChild(eb);
+
+  BRUSHES.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'brush-btn';
+    btn.title = `${b.label} (${b.id})`;
+    btn.dataset.bid = b.id;
+    btn.style.setProperty('--b-color', b.color);
+    btn.style.background = b.color;
+    btn.onclick = () => selectBrush(b.id);
+    p.appendChild(btn);
+  });
+
+  selectBrush(1);
+}
+
+function selectBrush(id) {
+  activeBrush = id;
+  document.querySelectorAll('.brush-btn').forEach(b => {
+    b.classList.toggle('active', +b.dataset.bid === id);
+  });
+}
+
+// ═══════════════════════════════════════════
+// PUZZLE LIBRARY
+// ═══════════════════════════════════════════
+const PUZZLES = [
+  /* ─ 5×5 starters ─ */
+  { name:'5×5 · Heart', rows:5, cols:5, solution:[
+    [0,1,0,1,0],[1,1,1,1,1],[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]]},
+  { name:'5×5 · Star', rows:5, cols:5, solution:[
+    [0,0,1,0,0],[1,1,1,1,1],[0,1,1,1,0],[1,0,1,0,1],[1,0,0,0,1]]},
+  { name:'5×5 · Diamond', rows:5, cols:5, solution:[
+    [0,0,1,0,0],[0,1,1,1,0],[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]]},
+  { name:'5×5 · Zigzag', rows:5, cols:5, solution:[
+    [1,1,0,0,0],[0,1,1,0,0],[0,0,1,1,0],[0,0,0,1,1],[0,0,0,0,1]]},
+  { name:'5×5 · Checkers', rows:5, cols:5, solution:[
+    [1,0,1,0,1],[0,1,0,1,0],[1,0,1,0,1],[0,1,0,1,0],[1,0,1,0,1]]},
+  { name:'5×5 · Crown', rows:5, cols:5, solution:[
+    [1,0,1,0,1],[1,1,1,1,1],[0,1,1,1,0],[0,1,1,1,0],[0,1,1,1,0]]},
+  { name:'5×5 · Spiral', rows:5, cols:5, solution:[
+    [1,1,1,1,1],[1,0,0,0,0],[1,0,1,1,0],[1,0,0,1,0],[1,1,1,1,0]]},
+  { name:'5×5 · Flag', rows:5, cols:5, solution:[
+    [1,1,1,0,0],[1,1,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]]},
+
+  /* ─ 8×8 ─ */
+  { name:'8×8 · Smiley', rows:8, cols:8, solution:[
+    [0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,0,1,1,0,1,1],
+    [1,1,1,1,1,1,1,1],[1,1,0,1,1,0,1,1],[1,1,1,0,0,1,1,1],
+    [0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0]]},
+  { name:'8×8 · Arrow', rows:8, cols:8, solution:[
+    [0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],
+    [1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[0,0,0,1,1,0,0,0],
+    [0,0,0,1,1,0,0,0],[0,0,0,1,1,0,0,0]]},
+  { name:'8×8 · Hourglass', rows:8, cols:8, solution:[
+    [1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],
+    [0,0,0,1,1,0,0,0],[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],
+    [0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1]]},
+  { name:'8×8 · Anchor', rows:8, cols:8, solution:[
+    [0,0,1,1,1,1,0,0],[0,1,0,1,1,0,1,0],[0,0,1,1,1,1,0,0],
+    [0,0,0,1,1,0,0,0],[0,0,0,1,1,0,0,0],[1,0,0,1,1,0,0,1],
+    [1,1,0,1,1,0,1,1],[0,1,1,1,1,1,1,0]]},
+
+  /* ─ 10×10 ─ */
+  { name:'10×10 · Mushroom', rows:10, cols:10, solution:[
+    [0,0,0,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,1,0,0],[0,1,1,0,1,1,0,1,1,0],
+    [1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1],[0,0,1,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,1,0,0,0],[0,0,1,1,0,0,1,1,0,0],[0,1,1,1,0,0,1,1,1,0],
+    [0,1,1,1,0,0,1,1,1,0]]},
+  { name:'10×10 · Cat', rows:10, cols:10, solution:[
+    [1,1,0,0,0,0,0,0,1,1],[1,1,0,0,0,0,0,0,1,1],[0,1,1,1,1,1,1,1,1,0],
+    [0,1,0,1,1,1,1,0,1,0],[0,1,1,1,1,1,1,1,1,0],[0,1,1,0,1,1,0,1,1,0],
+    [0,0,1,1,1,1,1,1,0,0],[0,0,1,1,0,0,1,1,0,0],[0,1,1,1,0,0,1,1,1,0],
+    [0,1,0,0,0,0,0,0,1,0]]},
+  { name:'10×10 · Ship', rows:10, cols:10, solution:[
+    [0,0,0,0,1,0,0,0,0,0],[0,0,0,1,1,1,0,0,0,0],[0,0,0,1,1,1,0,0,0,0],
+    [0,1,1,1,1,1,1,1,0,0],[0,1,0,1,0,1,0,1,0,0],[1,1,1,1,1,1,1,1,1,0],
+    [1,0,1,0,1,0,1,0,1,0],[1,1,1,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,1,0,0],
+    [0,0,1,1,1,1,1,0,0,0]]},
+  { name:'10×10 · Tree', rows:10, cols:10, solution:[
+    [0,0,0,0,1,1,0,0,0,0],[0,0,0,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,1,0,0],
+    [0,1,1,1,1,1,1,1,1,0],[0,0,0,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,1,0,0],
+    [0,1,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1,1],[0,0,0,0,1,1,0,0,0,0],
+    [0,0,0,0,1,1,0,0,0,0]]},
+  { name:'10×10 · Sun', rows:10, cols:10, solution:[
+    [0,0,1,0,0,0,0,1,0,0],[1,0,0,1,0,0,1,0,0,1],[0,0,1,1,1,1,1,1,0,0],
+    [0,1,1,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,1,1,0],
+    [0,1,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,1,0,0],[1,0,0,1,0,0,1,0,0,1],
+    [0,0,1,0,0,0,0,1,0,0]]},
+  { name:'10×10 · Owl', rows:10, cols:10, solution:[
+    [0,1,1,0,0,0,0,1,1,0],[1,1,1,1,0,0,1,1,1,1],[1,0,1,1,0,0,1,1,0,1],
+    [1,1,1,1,0,0,1,1,1,1],[0,1,1,0,0,0,0,1,1,0],[0,0,1,1,1,1,1,1,0,0],
+    [0,0,1,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,1,0],[0,0,1,1,0,0,1,1,0,0],
+    [0,0,0,1,1,1,1,0,0,0]]},
+  { name:'10×10 · Lock', rows:10, cols:10, solution:[
+    [0,0,1,1,1,1,1,1,0,0],[0,1,1,0,0,0,0,1,1,0],[0,1,1,0,0,0,0,1,1,0],
+    [1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1],[1,1,0,0,1,1,0,0,1,1],
+    [1,1,0,1,1,1,1,0,1,1],[1,1,0,1,1,1,1,0,1,1],[1,1,0,0,1,1,0,0,1,1],
+    [1,1,1,1,1,1,1,1,1,1]]},
+  { name:'10×10 · Rocket', rows:10, cols:10, solution:[
+    [0,0,0,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,1,0],
+    [0,1,1,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,1,1,0],[1,1,1,0,1,1,0,1,1,1],
+    [1,1,1,0,1,1,0,1,1,1],[0,0,0,0,1,1,0,0,0,0],[0,0,1,1,0,0,1,1,0,0],
+    [0,1,1,0,0,0,0,1,1,0]]},
+  { name:'10×10 · Fish', rows:10, cols:10, solution:[
+    [0,0,0,0,0,1,1,0,0,0],[0,0,0,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,0,1,1,1],[1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,0,1,1,1],
+    [0,1,1,1,1,1,1,1,1,1],[0,0,0,1,1,1,1,1,1,0],[0,0,0,0,0,1,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0]]},
+  { name:'10×10 · Gem', rows:10, cols:10, solution:[
+    [0,0,1,1,1,1,1,1,0,0],[0,1,1,0,0,0,0,1,1,0],[1,1,0,0,0,0,0,0,1,1],
+    [1,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1],[0,1,0,0,0,0,0,0,1,0],
+    [0,0,1,0,0,0,0,1,0,0],[0,0,0,1,0,0,1,0,0,0],[0,0,0,0,1,1,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0]]},
+  { name:'10×10 · House', rows:10, cols:10, solution:[
+    [0,0,0,0,1,1,0,0,0,0],[0,0,0,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,1,0,0],
+    [0,1,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,0,0,0,0,1,1,1],[1,1,1,0,1,1,0,1,1,1],[1,1,1,0,1,1,0,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1]]},
+
+  /* ─ 15×15 ─ */
+  { name:'15×15 · Dragon', rows:15, cols:15, solution:[
+    [0,0,0,0,0,0,1,1,1,1,0,0,1,1,0],[0,0,0,0,0,1,1,1,1,1,1,0,0,1,1],
+    [0,0,0,0,1,1,1,1,1,1,1,1,0,1,1],[0,0,0,1,1,1,0,0,1,1,1,1,1,1,0],
+    [0,0,1,1,1,0,0,0,0,1,1,1,1,1,0],[0,1,1,1,0,0,0,0,0,0,1,1,1,0,0],
+    [1,1,1,1,1,0,1,0,0,0,1,1,0,0,0],[1,1,1,1,1,1,0,0,0,1,1,0,0,0,0],
+    [0,1,1,1,1,1,1,1,1,1,0,0,0,0,0],[0,0,1,1,1,1,1,1,1,0,0,0,0,0,0],
+    [0,0,0,1,1,1,1,0,0,0,0,0,0,0,0],[0,0,1,1,1,1,1,1,0,0,0,0,0,0,0],
+    [0,1,1,1,0,0,1,1,1,0,0,0,0,0,0],[1,1,1,0,0,0,0,1,1,1,0,0,0,0,0],
+    [1,1,0,0,0,0,0,0,1,1,0,0,0,0,0]]},
+  { name:'15×15 · Castle', rows:15, cols:15, solution:[
+    [1,0,1,0,0,0,1,0,1,0,0,0,1,0,1],[1,1,1,0,0,0,1,1,1,0,0,0,1,1,1],
+    [1,1,1,0,0,0,1,1,1,0,0,0,1,1,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,1,0,1,1,0,1,1,1,0,1,1,0,1,1],
+    [1,1,0,1,1,0,1,1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,1,1,1,1,1,0,1,0,1,1,1,1,1,0],
+    [0,1,1,1,1,1,0,1,0,1,1,1,1,1,0],[0,1,1,0,1,1,0,1,0,1,1,0,1,1,0],
+    [0,1,1,0,1,1,0,1,0,1,1,0,1,1,0],[0,1,1,1,1,1,0,1,0,1,1,1,1,1,0],
+    [0,1,1,1,1,1,0,1,0,1,1,1,1,1,0]]},
+  { name:'15×15 · Robot', rows:15, cols:15, solution:[
+    [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],[0,0,1,1,0,0,0,0,0,0,0,1,1,0,0],
+    [0,1,1,0,1,1,0,0,0,1,1,0,1,1,0],[0,1,1,0,1,1,0,0,0,1,1,0,1,1,0],
+    [0,0,1,1,0,0,0,0,0,0,0,1,1,0,0],[0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,0],[1,1,1,0,1,0,1,0,1,0,1,0,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,1,0,0,1,1,1,1,1,1,1,0,0,1,1],
+    [1,1,0,0,1,1,1,1,1,1,1,0,0,1,1],[0,1,1,1,1,0,0,0,0,1,1,1,1,1,0],
+    [0,0,1,1,0,0,0,0,0,0,1,1,0,0,0],[0,1,1,1,0,0,0,0,0,0,1,1,1,0,0],
+    [1,1,0,1,1,0,0,0,0,0,1,1,0,1,1]]},
+  { name:'15×15 · Butterfly', rows:15, cols:15, solution:[
+    [1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],[1,1,1,0,0,0,0,0,0,0,0,0,1,1,1],
+    [0,1,1,1,1,0,0,0,0,0,1,1,1,1,0],[0,0,1,1,1,1,1,0,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],[0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],[0,0,0,0,0,0,1,1,1,0,0,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],[0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,0,1,1,1,1,1,0,0],
+    [0,1,1,1,1,0,0,0,0,0,1,1,1,1,0],[1,1,1,0,0,0,0,0,0,0,0,0,1,1,1],
+    [1,1,0,0,0,0,0,0,0,0,0,0,0,1,1]]},
+  { name:'15×15 · Compass', rows:15, cols:15, solution:[
+    [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0],[0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,1,1,0,1,0,1,1,0,0,0,0],[0,0,0,1,1,0,0,1,0,0,1,1,0,0,0],
+    [0,0,1,1,0,0,0,1,0,0,0,1,1,0,0],[0,1,1,0,0,0,0,1,0,0,0,0,1,1,0],
+    [1,1,0,0,0,0,0,1,0,0,0,0,0,1,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,0,0,0,0,0,1,0,0,0,0,0,1,1],[0,1,1,0,0,0,0,1,0,0,0,0,1,1,0],
+    [0,0,1,1,0,0,0,1,0,0,0,1,1,0,0],[0,0,0,1,1,0,0,1,0,0,1,1,0,0,0],
+    [0,0,0,0,1,1,0,1,0,1,1,0,0,0,0],[0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0]]},
+  { name:'15×15 · Lighthouse', rows:15, cols:15, solution:[
+    [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],[0,0,0,0,1,0,1,1,1,0,1,0,0,0,0],
+    [0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],[0,0,0,1,1,0,1,1,1,0,1,1,0,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],[0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],[0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],[0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0]]},
+
+  /* ─ 20×20 ─ */
+  { name:'20×20 · Fox', rows:20, cols:20, solution:[
+    [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+    [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+    [0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0],
+    [0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,0,0],
+    [0,0,1,1,0,0,0,1,1,1,1,1,1,0,0,0,1,1,0,0],
+    [0,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,1,1,1,0],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,1,1,0,1,1,1,0,1,1,1,1,0,1,1,1,0,1,1,0],
+    [1,1,1,0,0,1,1,0,1,1,1,1,0,1,1,0,0,1,1,1],
+    [1,1,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,1,1],
+    [1,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,1],
+    [0,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,0],
+    [0,0,1,1,0,0,0,0,1,1,1,1,0,0,0,0,1,1,0,0],
+    [0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,1,1,0,0,0],
+    [0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0]]},
+  { name:'20×20 · Eagle', rows:20, cols:20, solution:[
+    [0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0],
+    [0,0,1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,1,0,0],
+    [1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,1,1,0,1,1,1,1,0,1,1,0,0,0,0,0],
+    [0,0,0,0,0,1,0,0,1,1,1,1,0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,1,0,0,1,1,1,1,0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,1,1,1,0,0,1,1,0,0,1,1,1,0,0,0,0],
+    [0,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,1,0,0,0],
+    [0,0,1,1,1,0,0,0,0,1,1,0,0,0,0,1,1,1,0,0],
+    [0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0],
+    [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+    [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1]]},
+  { name:'20×20 · Skull', rows:20, cols:20, solution:[
+    [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,0,0,1,1,1,0,0,0,0,1,1,1,0,0,1,1,1],
+    [1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1],
+    [1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1],
+    [1,1,1,0,0,1,1,1,0,0,0,0,1,1,1,0,0,1,1,1],
+    [1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0],
+    [0,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,0,0],
+    [0,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,0,0],
+    [0,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,0,0],
+    [0,0,1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,1,0,0,0],
+    [0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0],
+    [0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0]]},
+  { name:'20×20 · Whale', rows:20, cols:20, solution:[
+    [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0],
+    [0,0,1,1,0,0,0,1,1,1,1,1,1,0,0,0,1,1,0,0],
+    [0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0],
+    [1,1,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,1,1]]},
+];
+
+// ═══════════════════════════════════════════
+// CLUES
+// ═══════════════════════════════════════════
+function computeClues(sol, rows, cols) {
+  const rc=[], cc=[];
+  for (let r=0;r<rows;r++) {
+    const cl=[], row=sol[r]; let run=0;
+    for (let i=0;i<=cols;i++) { if(i<cols&&row[i])run++; else{if(run)cl.push(run);run=0;} }
+    rc.push(cl.length?cl:[0]);
+  }
+  for (let c=0;c<cols;c++) {
+    const cl=[]; let run=0;
+    for (let r=0;r<=rows;r++) { if(r<rows&&sol[r][c])run++; else{if(run)cl.push(run);run=0;} }
+    cc.push(cl.length?cl:[0]);
+  }
+  return { rowClues:rc, colClues:cc };
+}
+function getRuns(arr) {
+  const r=[]; let n=0;
+  for(let i=0;i<=arr.length;i++){if(i<arr.length&&arr[i])n++;else{if(n){r.push(n);n=0;}}}
+  return r;
+}
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+// board[r][c] = 0 (empty) | 1-7 (coloured fill) | 8 (X mark)
+let puzzle=null, board=[], history=[], future=[];
+let dragState=null, timerInterval=null;
+let elapsed=0, won=false, hintsUsed=0;
+let cellSize=32, hoverRow=-1, hoverCol=-1;
+
+const isFilled = v => v>=1 && v<=7;
+const makeBoard = (r,c) => Array.from({length:r},()=>new Array(c).fill(0));
+const cloneBoard = b => b.map(r=>[...r]);
+
+function pushHistory() {
+  history.push(cloneBoard(board)); future=[];
+  if(history.length>200)history.shift();
+}
+
+// ═══════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{ if(!won){elapsed++;updateTimer();} },1000);
+}
+function stopTimer() { clearInterval(timerInterval); }
+function updateTimer() {
+  const m=Math.floor(elapsed/60), s=elapsed%60;
+  document.getElementById('timer').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════
+// SELECT
+// ═══════════════════════════════════════════
+function initSelect() {
+  const sel=document.getElementById('puzzleSelect');
+  sel.innerHTML='';
+  PUZZLES.forEach((p,i)=>{
+    const o=document.createElement('option');
+    o.value=i; o.textContent=p.name; sel.appendChild(o);
+  });
+}
+
+// ═══════════════════════════════════════════
+// LOAD
+// ═══════════════════════════════════════════
+function loadPuzzle(idx) {
+  puzzle=PUZZLES[idx];
+  board=makeBoard(puzzle.rows,puzzle.cols);
+  history=[]; future=[];
+  won=false; hintsUsed=0; elapsed=0;
+  updateTimer(); stopTimer(); startTimer();
+  document.getElementById('winOverlay').classList.remove('show');
+  setStatus('');
+  buildGrid();
+}
+
+// ═══════════════════════════════════════════
+// BUILD GRID
+// ═══════════════════════════════════════════
+function buildGrid() {
+  const {rows,cols}=puzzle;
+  const {rowClues,colClues}=computeClues(puzzle.solution,rows,cols);
+  document.documentElement.style.setProperty('--cell-size',cellSize+'px');
+  const outer=document.getElementById('gameOuter');
+  outer.innerHTML='';
+  const table=document.createElement('table');
+  table.id='ngTable';
+  const fs=Math.max(9,Math.min(14,cellSize*.38))+'px';
+  const maxCC=Math.max(...colClues.map(c=>c.length));
+
+  // col clue rows
+  for(let ci=0;ci<maxCC;ci++) {
+    const tr=document.createElement('tr');
+    const corner=document.createElement('td');
+    corner.className='corner';
+    if(ci===maxCC-1)corner.style.borderBottom='2px solid var(--grid-bold)';
+    tr.appendChild(corner);
+    for(let c=0;c<cols;c++) {
+      const td=document.createElement('td');
+      td.className='col-clue'; td.id=`cc-${c}`;
+      td.style.cssText=`min-width:${cellSize}px;font-size:${fs};`;
+      const cl=colClues[c], off=maxCC-cl.length;
+      if(ci>=off) td.textContent=cl[ci-off];
+      if(c%5===4&&c<cols-1)td.classList.add('bold-r');
+      if(ci===maxCC-1)td.style.borderBottom='2px solid var(--grid-bold)';
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+
+  // play rows
+  for(let r=0;r<rows;r++) {
+    const tr=document.createElement('tr');
+    const rc=document.createElement('td');
+    rc.className='row-clue'; rc.id=`rc-${r}`;
+    rc.style.cssText=`height:${cellSize}px;min-height:${cellSize}px;font-size:${fs};`;
+    const div=document.createElement('div');
+    div.className='nums';
+    div.innerHTML=rowClues[r].map(n=>`<span>${n}</span>`).join('');
+    rc.appendChild(div);
+    if(r%5===4&&r<rows-1)rc.classList.add('bold-b');
+    tr.appendChild(rc);
+    for(let c=0;c<cols;c++) {
+      const td=document.createElement('td');
+      td.className='cell'; td.id=`cell-${r}-${c}`;
+      td.dataset.r=r; td.dataset.c=c;
+      td.style.cssText=`width:${cellSize}px;height:${cellSize}px;`;
+      if(c%5===4&&c<cols-1)td.classList.add('bold-r');
+      if(r%5===4&&r<rows-1)td.classList.add('bold-b');
+      td.addEventListener('mousedown',onMouseDown);
+      td.addEventListener('mouseenter',onMouseEnter);
+      td.addEventListener('contextmenu',e=>e.preventDefault());
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  outer.appendChild(table);
+
+  // mark X font size
+  const style=document.getElementById('xStyle')||document.createElement('style');
+  style.id='xStyle';
+  style.textContent=`.cell.marked::after{font-size:${Math.max(9,cellSize*.55)}px;}`;
+  document.head.appendChild(style);
+
+  refreshBoard();
+}
+
+// ═══════════════════════════════════════════
+// REFRESH
+// ═══════════════════════════════════════════
+function cellClass(r,c,v) {
+  const {rows,cols}=puzzle;
+  let cls='cell';
+  if(c%5===4&&c<cols-1)cls+=' bold-r';
+  if(r%5===4&&r<rows-1)cls+=' bold-b';
+  if(v>=1&&v<=7) cls+=` c${v}`;
+  else if(v===8)  cls+=' marked';
+  if(r===hoverRow)cls+=' hrow';
+  if(c===hoverCol)cls+=' hcol';
+  return cls;
+}
+
+function refreshBoard() {
+  if(!puzzle)return;
+  const {rows,cols}=puzzle;
+  const {rowClues,colClues}=computeClues(puzzle.solution,rows,cols);
+  for(let r=0;r<rows;r++) {
+    for(let c=0;c<cols;c++) {
+      const td=document.getElementById(`cell-${r}-${c}`);
+      if(td)td.className=cellClass(r,c,board[r][c]);
+    }
+    const rc=document.getElementById(`rc-${r}`);
+    if(rc){rc.classList.toggle('done',isRowSolved(r,rowClues[r]));rc.classList.toggle('hi',r===hoverRow);}
+  }
+  for(let c=0;c<cols;c++) {
+    const cc=document.getElementById(`cc-${c}`);
+    if(cc){cc.classList.toggle('done',isColSolved(c,colClues[c]));cc.classList.toggle('hi',c===hoverCol);}
+  }
+}
+
+function isRowSolved(r,clue) {
+  const runs=getRuns(board[r].map(v=>isFilled(v)?1:0));
+  return clue.length===1&&clue[0]===0?runs.length===0:JSON.stringify(runs)===JSON.stringify(clue);
+}
+function isColSolved(c,clue) {
+  const col=board.map(row=>isFilled(row[c])?1:0);
+  const runs=getRuns(col);
+  return clue.length===1&&clue[0]===0?runs.length===0:JSON.stringify(runs)===JSON.stringify(clue);
+}
+
+// ═══════════════════════════════════════════
+// WIN
+// ═══════════════════════════════════════════
+function checkDone(announce) {
+  if(!puzzle||won)return false;
+  const {rows,cols,solution}=puzzle;
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++)
+    if((isFilled(board[r][c])?1:0)!==solution[r][c])return false;
+  won=true; stopTimer(); recordWin();
+  if(announce){
+    const m=Math.floor(elapsed/60),s=elapsed%60;
+    document.getElementById('winTime').textContent=
+      `${m}:${s.toString().padStart(2,'0')}${hintsUsed?` · ${hintsUsed} hint${hintsUsed>1?'s':''}`:''}`;
+    setTimeout(()=>document.getElementById('winOverlay').classList.add('show'),350);
+  }
+  setStatus('<span class="ok">✓ Puzzle solved!</span>');
+  return true;
+}
+
+// ═══════════════════════════════════════════
+// CHECK
+// ═══════════════════════════════════════════
+function checkPuzzle() {
+  if(!puzzle)return;
+  let errs=0;
+  const {rows,cols,solution}=puzzle;
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++)
+    if(isFilled(board[r][c])&&!solution[r][c])errs++;
+  if(!errs){ if(!checkDone(true))setStatus('<span class="ok">✓ No mistakes so far!</span>'); }
+  else { setStatus(`<span class="err">✗ ${errs} wrong cell${errs>1?'s':''}</span>`); setTimeout(()=>setStatus(''),2200); }
+}
+
+// ═══════════════════════════════════════════
+// HINT
+// ═══════════════════════════════════════════
+function giveHint() {
+  if(!puzzle||won)return;
+  const {rows,cols,solution}=puzzle;
+  const empty=[];
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++)
+    if(!isFilled(board[r][c])&&solution[r][c]===1)empty.push([r,c]);
+  if(!empty.length){setStatus('<span class="ok">All cells revealed!</span>');return;}
+  const [r,c]=empty[Math.floor(Math.random()*empty.length)];
+  pushHistory();
+  board[r][c]=activeBrush||1;
+  hintsUsed++;
+  refreshBoard();
+  const td=document.getElementById(`cell-${r}-${c}`);
+  if(td){td.style.outline='3px solid var(--accent2)';setTimeout(()=>{td.style.outline='';},900);}
+  setStatus(`<span>Hint at (${r+1},${c+1}) · ${hintsUsed} hint${hintsUsed>1?'s':''} used</span>`);
+  checkDone(true);
+}
+
+// ═══════════════════════════════════════════
+// MOUSE
+// ═══════════════════════════════════════════
+document.addEventListener('mouseup',()=>dragState=null);
+document.addEventListener('mouseleave',()=>dragState=null);
+
+function onMouseDown(e) {
+  e.preventDefault();
+  if(won)return;
+  const r=+this.dataset.r, c=+this.dataset.c;
+  const cur=board[r][c];
+  let mode;
+  if(e.button===2) {
+    mode = cur===8?'clear':'mark';
+  } else {
+    if(activeBrush===0) mode='clear';
+    else if(isFilled(cur)&&cur===activeBrush) mode='clear';
+    else mode='fill';
+  }
+  dragState={mode};
+  pushHistory();
+  applyCell(r,c,mode);
+  refreshBoard();
+  checkDone(true);
+}
+
+function onMouseEnter(e) {
+  const r=+this.dataset.r, c=+this.dataset.c;
+  hoverRow=r; hoverCol=c;
+  if(dragState&&!won)applyCell(r,c,dragState.mode);
+  refreshBoard();
+}
+
+document.getElementById('gameOuter').addEventListener('mouseleave',()=>{
+  hoverRow=-1; hoverCol=-1; refreshBoard();
+});
+
+function applyCell(r,c,mode) {
+  if(mode==='fill')       board[r][c]=activeBrush||1;
+  else if(mode==='mark')  board[r][c]=8;
+  else                    board[r][c]=0;
+}
+
+// ═══════════════════════════════════════════
+// UNDO / REDO
+// ═══════════════════════════════════════════
+function undo() {
+  if(!history.length)return;
+  future.push(cloneBoard(board));
+  board=history.pop();
+  refreshBoard(); checkDone();
+}
+function redo() {
+  if(!future.length)return;
+  history.push(cloneBoard(board));
+  board=future.pop();
+  refreshBoard(); checkDone();
+}
+
+// ═══════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo();}
+  if(e.ctrlKey&&(e.key==='y'||e.key==='Y')){e.preventDefault();redo();}
+  if(!e.ctrlKey&&(e.key==='h'||e.key==='H'))giveHint();
+  if(!e.ctrlKey&&e.key==='0')selectBrush(0);
+  if(!e.ctrlKey&&e.key>='1'&&e.key<='7')selectBrush(+e.key);
+});
+
+// ═══════════════════════════════════════════
+// ZOOM
+// ═══════════════════════════════════════════
+function setZoom(sz) {
+  cellSize=Math.max(14,Math.min(72,sz));
+  document.getElementById('zoomVal').textContent=cellSize+'px';
+  if(puzzle)buildGrid();
+}
+document.getElementById('btnZoomIn').onclick =()=>setZoom(cellSize+4);
+document.getElementById('btnZoomOut').onclick=()=>setZoom(cellSize-4);
+
+// ═══════════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════════
+function setStatus(html){document.getElementById('statusbar').innerHTML=html;}
+
+// ═══════════════════════════════════════════
+// BUTTON WIRING
+// ═══════════════════════════════════════════
+document.getElementById('btnNew').onclick=()=>loadPuzzle(+document.getElementById('puzzleSelect').value);
+document.getElementById('puzzleSelect').onchange=function(){loadPuzzle(+this.value);};
+document.getElementById('btnCheck').onclick=checkPuzzle;
+document.getElementById('btnHint').onclick=giveHint;
+document.getElementById('btnUndo').onclick=undo;
+document.getElementById('btnRedo').onclick=redo;
+document.getElementById('btnReset').onclick=()=>{
+  if(!puzzle||!confirm('Reset the board?'))return;
+  if(!won) breakStreak();
+  pushHistory();
+  board=makeBoard(puzzle.rows,puzzle.cols);
+  won=false;elapsed=0;hintsUsed=0;
+  updateTimer();stopTimer();startTimer();
+  setStatus('');refreshBoard();
+};
+document.getElementById('btnNextWin').onclick=()=>{
+  const sel=document.getElementById('puzzleSelect');
+  const next=(+sel.value+1)%PUZZLES.length;
+  sel.value=next; loadPuzzle(next);
+};
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+buildSwatches();
+buildBrushPalette();
+initSelect();
+applyTheme(localStorage.getItem('ng_theme')||'dark');
+refreshStatsBadge();
+loadPuzzle(0);
+</script>
+</body>
+</html>
