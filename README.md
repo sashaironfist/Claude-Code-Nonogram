@@ -12,6 +12,8 @@ git clone https://github.com/sashaironfist/Claude-Code-Nonogram.git
 ```
 Then open `nonogram.html` directly in your browser.
 
+https://sashaironfist.github.io/Claude-Code-Nonogram/
+
 ## What is a Nonogram?
 
 Nonograms (also called Picross or Griddlers) are logic puzzles where you fill in cells on a grid based on number clues along each row and column. The numbers tell you how many consecutive filled cells appear in that line, in order.
