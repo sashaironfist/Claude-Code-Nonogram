@@ -481,6 +481,15 @@ td    { padding: 0; }
     <select id="puzzleSelect"></select>
     <button id="btnNew">New</button>
     <div class="sep"></div>
+    <select id="randomSize">
+      <option value="5">5×5</option>
+      <option value="8">8×8</option>
+      <option value="10" selected>10×10</option>
+      <option value="15">15×15</option>
+      <option value="20">20×20</option>
+    </select>
+    <button id="btnRandom">🎲 Random</button>
+    <div class="sep"></div>
     <button id="btnCheck">Check</button>
     <button id="btnHint">Hint</button>
     <button id="btnUndo">↩ Undo</button>
@@ -1053,7 +1062,7 @@ function buildGrid() {
     tr.appendChild(corner);
     for(let c=0;c<cols;c++) {
       const td=document.createElement('td');
-      td.className='col-clue'; td.id=`cc-${c}`;
+      td.className='col-clue'; td.dataset.col=c;
       td.style.cssText=`min-width:${cellSize}px;font-size:${fs};`;
       const cl=colClues[c], off=maxCC-cl.length;
       if(ci>=off) td.textContent=cl[ci-off];
@@ -1129,8 +1138,10 @@ function refreshBoard() {
     if(rc){rc.classList.toggle('done',isRowSolved(r,rowClues[r]));rc.classList.toggle('hi',r===hoverRow);}
   }
   for(let c=0;c<cols;c++) {
-    const cc=document.getElementById(`cc-${c}`);
-    if(cc){cc.classList.toggle('done',isColSolved(c,colClues[c]));cc.classList.toggle('hi',c===hoverCol);}
+    const solved=isColSolved(c,colClues[c]), hi=c===hoverCol;
+    document.querySelectorAll(`.col-clue[data-col="${c}"]`).forEach(cc=>{
+      cc.classList.toggle('done',solved); cc.classList.toggle('hi',hi);
+    });
   }
 }
 
@@ -1306,6 +1317,37 @@ document.getElementById('btnNextWin').onclick=()=>{
   const next=(+sel.value+1)%PUZZLES.length;
   sel.value=next; loadPuzzle(next);
 };
+
+// ═══════════════════════════════════════════
+// RANDOM PUZZLE GENERATOR
+// ═══════════════════════════════════════════
+function generateRandomPuzzle(rows, cols) {
+  // Build a random binary grid, then ensure every row/col has at least one filled cell
+  const sol = Array.from({length:rows}, ()=>new Array(cols).fill(0));
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) sol[r][c]=Math.random()<0.5?1:0;
+  // Guarantee no fully-empty rows or cols
+  for(let r=0;r<rows;r++) if(!sol[r].some(v=>v)) sol[r][Math.floor(Math.random()*cols)]=1;
+  for(let c=0;c<cols;c++) if(!sol.some(row=>row[c])) sol[Math.floor(Math.random()*rows)][c]=1;
+  return {name:`Random ${rows}×${cols}`, rows, cols, solution:sol};
+}
+
+function loadRandomPuzzle() {
+  const n=+document.getElementById('randomSize').value;
+  const p=generateRandomPuzzle(n,n);
+  puzzle=p;
+  board=makeBoard(p.rows,p.cols);
+  history=[]; future=[];
+  won=false; hintsUsed=0; elapsed=0;
+  updateTimer(); stopTimer(); startTimer();
+  document.getElementById('winOverlay').classList.remove('show');
+  // deselect the dropdown so it's clear a custom puzzle is loaded
+  document.getElementById('puzzleSelect').value='';
+  setStatus(`<span class="ok">Random ${n}×${n} puzzle generated!</span>`);
+  setTimeout(()=>setStatus(''),2000);
+  buildGrid();
+}
+
+document.getElementById('btnRandom').onclick=loadRandomPuzzle;
 
 // ═══════════════════════════════════════════
 // INIT
