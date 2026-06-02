@@ -1045,6 +1045,10 @@ function loadPuzzle(idx) {
 function buildGrid() {
   const {rows,cols}=puzzle;
   const {rowClues,colClues}=computeClues(puzzle.solution,rows,cols);
+  // Keep the cell grid roughly 560 px wide regardless of puzzle size
+  const TARGET_PX=560;
+  cellSize=Math.max(14,Math.min(72,Math.floor(TARGET_PX/Math.max(rows,cols))));
+  document.getElementById('zoomVal').textContent=cellSize+'px';
   document.documentElement.style.setProperty('--cell-size',cellSize+'px');
   const outer=document.getElementById('gameOuter');
   outer.innerHTML='';
