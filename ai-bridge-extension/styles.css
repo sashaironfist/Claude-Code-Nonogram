@@ -1,0 +1,171 @@
+#ai-bridge-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999999;
+  width: 280px;
+  background: #1a1a2e;
+  border: 1px solid #3a3a5c;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.2s, height 0.2s;
+}
+
+#ai-bridge-panel.ai-bridge-panel--minimized {
+  width: 140px;
+}
+
+.ai-bridge-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #16213e;
+  cursor: grab;
+  user-select: none;
+}
+
+.ai-bridge-header:active {
+  cursor: grabbing;
+}
+
+.ai-bridge-logo {
+  font-size: 16px;
+}
+
+.ai-bridge-title {
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.ai-bridge-minimize {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.ai-bridge-minimize:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ai-bridge-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+}
+
+.ai-bridge-status {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2a2a4a;
+}
+
+.ai-bridge-btn {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.ai-bridge-btn:active {
+  transform: scale(0.98);
+}
+
+.ai-bridge-btn--copy {
+  background: #2563eb;
+  color: white;
+}
+
+.ai-bridge-btn--copy:hover {
+  background: #1d4ed8;
+}
+
+.ai-bridge-btn--copy-ctx {
+  background: #7c3aed;
+  color: white;
+}
+
+.ai-bridge-btn--copy-ctx:hover {
+  background: #6d28d9;
+}
+
+.ai-bridge-btn--paste {
+  background: #059669;
+  color: white;
+}
+
+.ai-bridge-btn--paste:hover {
+  background: #047857;
+}
+
+.ai-bridge-buffer-status {
+  font-size: 10px;
+  color: #6b7280;
+  padding: 6px 8px;
+  background: #0f0f23;
+  border-radius: 6px;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.ai-bridge-buffer-status--has-data {
+  color: #a78bfa;
+  background: #1a1040;
+}
+
+.ai-bridge-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999999;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+}
+
+.ai-bridge-toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ai-bridge-toast--success {
+  background: #065f46;
+  color: #d1fae5;
+}
+
+.ai-bridge-toast--error {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.ai-bridge-toast--warning {
+  background: #78350f;
+  color: #fef3c7;
+}
