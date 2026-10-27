@@ -1,9 +1,15 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "AI Bridge — Claude ↔ ChatGPT",
   "version": "1.0.0",
   "description": "One-click transfer of AI responses between Claude and ChatGPT",
   "permissions": ["activeTab", "storage"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ai-bridge@sashaironfist",
+      "strict_min_version": "109.0"
+    }
+  },
   "icons": {
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
@@ -20,6 +26,6 @@
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"]
   }
 }

@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  const storageApi = typeof browser !== "undefined" ? browser.storage : chrome.storage;
+
   const SITE = location.hostname.includes("claude.ai") ? "claude" : "chatgpt";
   const OTHER = SITE === "claude" ? "ChatGPT" : "Claude";
 
@@ -168,7 +170,7 @@
   }
 
   function updateBufferStatus() {
-    chrome.storage.local.get(["aiBridgeBuffer", "aiBridgeSource"], (data) => {
+    storageApi.local.get(["aiBridgeBuffer", "aiBridgeSource"]).then((data) => {
       const info = document.getElementById("ai-bridge-buffer-info");
       if (!info) return;
       if (data.aiBridgeBuffer) {
@@ -195,14 +197,13 @@
       `\n\n--- Конец ответа ---\n\n` +
       `Пожалуйста, проанализируй этот ответ. Если есть ошибки или можно улучшить — укажи. Дай своё мнение.`;
 
-    chrome.storage.local.set(
-      { aiBridgeBuffer: formatted, aiBridgeSource: SITE === "claude" ? "Claude" : "ChatGPT" },
-      () => {
-        copyToClipboard(formatted);
-        showToast(`✅ Скопировано! Вставь в ${OTHER}`, "success");
-        updateBufferStatus();
-      }
-    );
+    storageApi.local.set(
+      { aiBridgeBuffer: formatted, aiBridgeSource: SITE === "claude" ? "Claude" : "ChatGPT" }
+    ).then(() => {
+      copyToClipboard(formatted);
+      showToast(`✅ Скопировано! Вставь в ${OTHER}`, "success");
+      updateBufferStatus();
+    });
   }
 
   function handleCopyContext() {
@@ -218,18 +219,17 @@
       `\n\n--- Конец контекста ---\n\n` +
       `Пожалуйста, ознакомься с этим обсуждением и дай своё мнение. Что можно улучшить? Есть ли ошибки?`;
 
-    chrome.storage.local.set(
-      { aiBridgeBuffer: formatted, aiBridgeSource: SITE === "claude" ? "Claude" : "ChatGPT" },
-      () => {
-        copyToClipboard(formatted);
-        showToast(`✅ Контекст скопирован! Вставь в ${OTHER}`, "success");
-        updateBufferStatus();
-      }
-    );
+    storageApi.local.set(
+      { aiBridgeBuffer: formatted, aiBridgeSource: SITE === "claude" ? "Claude" : "ChatGPT" }
+    ).then(() => {
+      copyToClipboard(formatted);
+      showToast(`✅ Контекст скопирован! Вставь в ${OTHER}`, "success");
+      updateBufferStatus();
+    });
   }
 
   function handlePaste() {
-    chrome.storage.local.get(["aiBridgeBuffer", "aiBridgeSource"], (data) => {
+    storageApi.local.get(["aiBridgeBuffer", "aiBridgeSource"]).then((data) => {
       if (!data.aiBridgeBuffer) {
         showToast("Буфер пуст — сначала скопируй ответ из другого AI", "error");
         return;
@@ -267,7 +267,7 @@
 
       showToast(`✅ Вставлено от ${data.aiBridgeSource}!`, "success");
 
-      chrome.storage.local.remove(["aiBridgeBuffer", "aiBridgeSource"], () => {
+      storageApi.local.remove(["aiBridgeBuffer", "aiBridgeSource"]).then(() => {
         updateBufferStatus();
       });
     });
